@@ -80,7 +80,7 @@ def train(config):
                 config.snapshot_folder, "best.pth"))
             print('val_loss', val_loss)
             writer.add_scalar('validation', val_loss, epoch)
-        if if (epoch % config.model_saved_freq) == 0:
+        if (epoch % config.model_saved_freq) == 0:
             torch.save(model.state_dict(), os.path.join(
                 config.snapshot_folder, "Epoch" + str(epoch) + '.pth'))
 
@@ -120,11 +120,11 @@ if __name__ == "__main__":
     parser.add_argument('--num_workers', type=int, default=4)
     parser.add_argument('--output_display_freq', type=int, default=10)
     parser.add_argument('--model_saved_freq', type=int, default=10)
-    parser.add_argument('--crop', type=int, default=256)
+    parser.add_argument('--crop', type=int, default=512)
     parser.add_argument('--log_dir', type=str,
-                        default="ss/log")
+                        default="ss512/log")
     parser.add_argument('--snapshot_folder', type=str,
-                        default="ss")
+                        default="ss512")
     parser.add_argument('--pretrain_dir', type=str)
     config = parser.parse_args()
 
