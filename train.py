@@ -6,7 +6,7 @@ import math
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 import torchvision
-from dataloaders.dataset_paired_rgb import PairedRGBDataset
+from dataloaders.dataset_paired_rgb import PairedRGBDataset, ValPairedRGBDataset
 from networks.denoising_rgb import DenoiseNet
 
 if torch.cuda.is_available():
@@ -25,7 +25,7 @@ def evaluate(model, data, criterion):
         x, y, _, _ = batch
         x = x.to(device)
         y = y.to(device)
-        y_hat,_, _= model(x)
+        y_hat = model(x)
         # done
         loss = criterion(y_hat, y)
         epoch_loss += loss.item()
@@ -43,7 +43,7 @@ def train(config):
     train_dataset = PairedRGBDataset(config.train_data, (config.crop, config.crop))
     train_data = torch.utils.data.DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True, num_workers=config.num_workers, pin_memory=True)
     val_dataset = ValPairedRGBDataset(config.val_data, (config.crop, config.crop))
-    val_data = torch.utils.data.DataLoader(val_dataset, batch_size=config.batch_size, shuffle=True, num_workers=config.num_workers, pin_memory=True)
+    val_data = torch.utils.data.DataLoader(val_dataset, batch_size=config.batch_size - 1, shuffle=True, num_workers=config.num_workers, pin_memory=True)
     # todo: done
     optimizer = torch.optim.Adam(
         model.parameters(), lr=config.lr, weight_decay=config.weight_decay, betas=(0.9, 0.999))
@@ -52,7 +52,7 @@ def train(config):
     for epoch in range(config.num_epochs):
         print('Epoch', epoch)
         epoch_loss = 0
-        for batch in tqdm(data):
+        for batch in tqdm(train_data):
             x, y, _, _ = batch
             x = x.to(device)
             y = y.to(device)
@@ -63,8 +63,8 @@ def train(config):
             loss = criterion(y_hat, y)
             optimizer.zero_grad()
             loss.backward()
-            if grad_clip is not None:
-                torch.nn.utils.clip_grad_norm(model.parameters(), grad_clip)
+            if config.grad_clip_norm is not None:
+                torch.nn.utils.clip_grad_norm(model.parameters(), config.grad_clip_norm)
             optimizer.step()
             epoch_loss += loss.item()
         writer.add_image('noisy', x[0], epoch)
@@ -72,7 +72,7 @@ def train(config):
         writer.add_image('predict', y_hat[0], epoch)
         print('train_loss', epoch_loss)
         writer.add_scalar('train', epoch_loss, epoch)
-
+        torch.cuda.empty_cache()
         val_loss = evaluate(model, val_data, criterion)
         if val_loss < lowest_loss:
             lowest_loss = val_loss
@@ -116,7 +116,7 @@ if __name__ == "__main__":
     parser.add_argument('--weight_decay', type=float, default=0.0001)
     parser.add_argument('--grad_clip_norm', type=float, default=0.1)
     parser.add_argument('--num_epochs', type=int, default=100)
-    parser.add_argument('--batch_size', type=int, default=8)
+    parser.add_argument('--batch_size', type=int, default=4)
     parser.add_argument('--num_workers', type=int, default=4)
     parser.add_argument('--output_display_freq', type=int, default=10)
     parser.add_argument('--model_saved_freq', type=int, default=10)

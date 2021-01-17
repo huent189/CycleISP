@@ -131,7 +131,7 @@ class RRG(nn.Module):
 class DenoiseNet(nn.Module):
     def __init__(self, conv=conv):
         super(DenoiseNet, self).__init__()
-        num_rrg = 4
+        num_rrg = 2
         num_dab = 8
         n_feats = 64
         kernel_size = 3
