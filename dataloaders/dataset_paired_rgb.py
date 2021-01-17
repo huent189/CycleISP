@@ -64,7 +64,7 @@ class ValPairedRGBDataset(nn.Module):
         w, h = self.crop_size
         left, top = position
         im = im.crop((left, top, left + w, top + h))
-        im = torch.from_numpy(np.array(im))
+        im = torch.from_numpy(np.array(im)).float()
         im = im / 255.0
         im = im.permute(2, 0, 1)
         # assert im.shape[1] == self.crop_size[0], 'size mismatch {}'.format(im.shape)

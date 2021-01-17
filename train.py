@@ -40,7 +40,7 @@ def train(config):
     if config.pretrain_dir is not None:
         model.load_state_dict(torch.load(config.pretrain_dir))
     # todo: done
-    train_dataset = PairedRGBDataset(config.train_data, (config.crop, config.crop))
+    train_dataset = ValPairedRGBDataset(config.train_data, (config.crop, config.crop))
     train_data = torch.utils.data.DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True, num_workers=config.num_workers, pin_memory=True)
     val_dataset = ValPairedRGBDataset(config.val_data, (config.crop, config.crop))
     val_data = torch.utils.data.DataLoader(val_dataset, batch_size=config.batch_size - 1, shuffle=True, num_workers=config.num_workers, pin_memory=True)
@@ -80,7 +80,7 @@ def train(config):
                 config.snapshot_folder, "best.pth"))
             print('val_loss', val_loss)
             writer.add_scalar('validation', val_loss, epoch)
-        if epoch % config.model_saved_freq:
+        if if (epoch % config.model_saved_freq) == 0:
             torch.save(model.state_dict(), os.path.join(
                 config.snapshot_folder, "Epoch" + str(epoch) + '.pth'))
 
