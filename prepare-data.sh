@@ -1,4 +1,4 @@
-unzip /mnt/vinai/sidd.zip
+unzip /mnt/vinai/sidd.zip || true
 cd SIDD_Medium_Srgb/
 mkdir val_data
 mv Data/0199_010_GP_00800_01600_5500_N val_data/
