@@ -43,7 +43,7 @@ def train(config):
     train_dataset = ValPairedRGBDataset(config.train_data, (config.crop, config.crop))
     train_data = torch.utils.data.DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True, num_workers=config.num_workers, pin_memory=True)
     val_dataset = ValPairedRGBDataset(config.val_data, (config.crop, config.crop))
-    val_data = torch.utils.data.DataLoader(val_dataset, batch_size=config.batch_size - 1, shuffle=True, num_workers=config.num_workers, pin_memory=True)
+    val_data = torch.utils.data.DataLoader(val_dataset, batch_size=config.batch_size // 2, shuffle=True, num_workers=config.num_workers, pin_memory=True)
     # todo: done
     optimizer = torch.optim.Adam(
         model.parameters(), lr=config.lr, weight_decay=config.weight_decay, betas=(0.9, 0.999))
